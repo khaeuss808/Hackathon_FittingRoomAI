@@ -85,7 +85,7 @@ def search_products():
         # Add similar items to your result payload later
 
         result = product_service.search_products(
-            style_keywords=style_keywords,
+            style_keywords=style_keywords if style_keywords else [],
             min_price=min_price,
             max_price=max_price,
             sizes=size_list,
@@ -97,7 +97,8 @@ def search_products():
         # Add NLP recommendations to response
         result["recommendations"] = clothing_recommendations
 
-        return jsonify(result)
+        logger.info(f"Returning {len(response['results'])} products")
+        return jsonify(response)
 
     except Exception as e:
         logger.error(f"Error in search_products: {str(e)}", exc_info=True)
