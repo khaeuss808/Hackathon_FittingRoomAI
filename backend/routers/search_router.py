@@ -1,13 +1,13 @@
 from flask import Blueprint, request, jsonify
 import logging
 from services.product_service import ProductService
-from services.nlp_service import NLPService
+from services.similarity_search import find_similar_items
+from services.nlp_service import run_nlp_search
 
 logger = logging.getLogger(__name__)
 bp = Blueprint("search", __name__)
 
 product_service = ProductService()
-nlp_service = NLPService()
 
 
 @bp.route("/api/search", methods=["GET"])
@@ -41,10 +41,10 @@ def search_products():
 
         clothing_recommendations = []
         style_keywords = []
-
-        if aesthetic and aesthetic.strip():
+        aesthetic = f"the aesthethic the person wants is: {aesthetic} and the person's height is: {heights}"
+        if aesthetic:
             # Get structured clothing recommendations from OpenAI
-            recommendations = nlp_service.run_nlp_search(aesthetic)
+            recommendations = run_nlp_search(aesthetic)
             logger.info(f"NLP recommendations: {recommendations}")
 
             # Extract search terms from recommendations
@@ -69,6 +69,20 @@ def search_products():
         brand_list = (
             [b.strip() for b in brands.split(",") if b.strip()] if brands else None
         )
+        # --- New: Find similar items/colors based on embeddings ---
+        similar_results = []
+        if clothing_recommendations:
+            for rec in clothing_recommendations:
+                item = rec.get("item_type", "")
+                color = rec.get("color", "")
+                query_text = f"{color} {item}".strip()
+                if query_text:
+                    logger.info(f"Finding similar products for: {query_text}")
+                    similar = find_similar_items(query_text, top_k=5)
+                    similar_results.extend(similar)
+        print(clothing_recommendations)
+        print(similar_results)
+        # Add similar items to your result payload later
 
         result = product_service.search_products(
             style_keywords=style_keywords if style_keywords else [],
@@ -80,21 +94,15 @@ def search_products():
             limit=limit,
         )
 
-        response = {
-            "results": result["products"],
-            "total": result["total"],
-            "page": result["page"],
-            "limit": result["limit"],
-            "totalPages": result["totalPages"],
-            "recommendations": clothing_recommendations,
-        }
+        # Add NLP recommendations to response
+        result["recommendations"] = clothing_recommendations
 
         logger.info(f"Returning {len(response['results'])} products")
         return jsonify(response)
 
     except Exception as e:
         logger.error(f"Error in search_products: {str(e)}", exc_info=True)
-        return jsonify({"error": str(e), "results": [], "total": 0}), 500
+        return jsonify({"error": str(e)}), 500
 
 
 @bp.route("/api/brands", methods=["GET"])
