@@ -13,16 +13,16 @@ client = OpenAI(api_key=api_key)
 (
     SYSTEM_PROMPT
 ) = """
-You are a fashion assistant. Convert any aesthetic or vibe description into a structured JSON list of clothing recommendations.
+You are a fashion assistant. Convert any aesthetic or vibe description into a structured list of clothing recommendations.
 
-Each item must be a real, shoppable clothing type found on common fashion retail sites.
+Each item must be a real, shoppable clothing type found on common fashion retail sites and considers the person's height.
 
 For each item, include:
 - "item_type": specific and realistic item name (e.g., "white t-shirt", "high-waisted jeans", "leather jacket")
 - "color": a simple, descriptive color (e.g., "black", "beige", "light blue")
 - "style": a short phrase describing the overall aesthetic (e.g., "minimalist streetwear", "boho chic")
 
-Output only valid JSON — no commentary or extra text.
+format the above three in one concise string and output a list of strings (e.g., ["flowy red dress","white oversize tshirt")]  — no commentary or extra text.
 """
 
 
@@ -50,5 +50,5 @@ def run_nlp_search(user_description: str):
 
 
 # trying to see if it works
-prompt = "I want the boho chic aesthetic"
+prompt = "I want the boho chic aesthetic and the person's height is 6'6\"."
 print(run_nlp_search(prompt))
