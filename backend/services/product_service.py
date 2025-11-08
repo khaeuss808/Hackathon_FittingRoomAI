@@ -1,7 +1,6 @@
 from typing import List, Dict, Optional
 import logging
 from database.db_manager import DatabaseManager
-from config import Config
 
 logger = logging.getLogger(__name__)
 

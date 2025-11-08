@@ -19,13 +19,12 @@ def create_app():
 
     CORS(
         app,
-        resources={
-            r"/api/*": {
-                "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
-                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-                "allow_headers": ["Content-Type"],
-            }
-        },
+        origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "Authorization"],
+        supports_credentials=True,
+        expose_headers=["Content-Type"],
+        max_age=3600,
     )
 
     # Register blueprints (routers)
@@ -35,10 +34,12 @@ def create_app():
     app.register_blueprint(scraper_bp)
 
     logger.info("The Fitting Room API initialized successfully")
+    logger.info(f"CORS enabled for: http://localhost:3000, http://127.0.0.1:3000")
 
     return app
 
 
 if __name__ == "__main__":
     app = create_app()
+    logger.info(f"Starting Flask server on {Config.HOST}:{Config.PORT}")
     app.run(host=Config.HOST, port=Config.PORT, debug=Config.DEBUG)
