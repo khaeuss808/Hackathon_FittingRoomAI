@@ -5,7 +5,6 @@ import os
 import json
 
 
-
 from dotenv import load_dotenv
 import os
 
@@ -17,8 +16,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
 
-SYSTEM_PROMPT
-) = """
+SYSTEM_PROMPT = """
 You are a fashion assistant. Convert any aesthetic or vibe description into a structured list of clothing recommendations.
 
 
@@ -29,7 +27,7 @@ For each item, include:
 •⁠  ⁠"color": a simple, descriptive color (e.g., "black", "beige", "light blue")
 •⁠  ⁠"style": a short phrase describing the overall aesthetic (e.g., "minimalist streetwear", "boho chic")
 
-format the above three in one concise string and output a list of strings (e.g., ["flowy red dress","white oversize tshirt")]  — no commentary or extra text. do not ask followup questions or recommendations. use whatever you are given.
+format the above three in one concise string that contains the item type, color and style. I want the output to be a list of strings where each element is one clothing item (e.g., ["flowy red dress","white oversize tshirt")]  — no commentary or extra text. do not ask followup questions or recommendations. use whatever you are given.
 
 """
 
@@ -49,14 +47,14 @@ def run_nlp_search(user_description: str):
     # Parse the model output safely
     content = response.choices[0].message.content.strip()
     try:
-        structured_output = json.loads(content)
+        structured_output = json.loads(content)  # previously json.loads(content)
     except json.JSONDecodeError:
         # fallback if LLM returns invalid JSON (rare)
-        structured_output = {"raw_text": content}
+        structured_output = json.loads(content)
 
     return structured_output
 
 
 # trying to see if it works
-prompt = "I want the boho chic aesthetic and the person's height is 6'6\"."
+prompt = "I want the academia aesthetic and the person's height is 6'6\"."
 print(run_nlp_search(prompt))

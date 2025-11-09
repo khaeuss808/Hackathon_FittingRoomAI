@@ -1,8 +1,9 @@
 from typing import List, Dict, Optional
 import logging
 from database.db_manager import DatabaseManager
+import pandas as pd
 
-path_name = "/Users/Meron/Desktop/Duke/Hackathon_FittingRoomAI/backend/scrapers/data/processed/zara_2417772_20251108-114030.csv"
+path_name = "../data/processed/zara_combined.csv"
 
 
 def search_items(
@@ -25,12 +26,12 @@ def search_items(
     df = pd.read_csv(csv_path)
 
     # --- Filter step by step ---
-    df["product_id"] = df["product_id"].astype(str)
+    df["reference"] = df["reference"].astype(str)
     if product_ids:
-        df = df[df["product_id"].isin(product_ids)]
+        df = df[df["reference"].isin(product_ids)]
 
-    if sizes:
-        df = df[df["size"].isin(sizes)]
+    # if sizes:
+    #    df = df[df["size"].isin(sizes)]
 
     if brands:
         df = df[df["brand"].isin(brands)]
@@ -71,7 +72,7 @@ def get_product_by_id(csv_path=path_name, product_id=None):
     df = pd.read_csv(csv_path)
 
     # Filter by product ID
-    product = df[df["product_id"] == product_id]
+    product = df[df["reference"] == product_id]
 
     if not product.empty:
         return product.iloc[0].to_dict()

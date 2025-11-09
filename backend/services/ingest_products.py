@@ -34,7 +34,7 @@ def ingest_products(csv_path: str):
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            product_id = row.get("product_id")
+            product_id = row.get("reference")
             name = row.get("name", "")
             brand = row.get("brand", "")
             category = row.get("category_hint", "")
@@ -70,5 +70,5 @@ def ingest_products(csv_path: str):
 
 
 if __name__ == "__main__":
-    CSV_PATH = "../data/processed/zara_2417772_20251108-125157.csv"  # adjust path
+    CSV_PATH = "data/processed/zara_combined.csv"  # adjust path
     ingest_products(CSV_PATH)

@@ -146,6 +146,7 @@ def ingest_csvs_to_db(csv_pattern="data/processed/zara_*.csv"):
         df = pd.read_csv(p)
         df = normalize(df)
         df.drop_duplicates(subset=["name", "color"], inplace=True)
+        df.to_csv("data/processed/zara_combined.csv", index=False)
         df.to_sql("products", engine, if_exists="append", index=False)
         total_ingested += len(df)
 
