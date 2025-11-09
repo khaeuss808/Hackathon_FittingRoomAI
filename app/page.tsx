@@ -1,141 +1,151 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Slider } from "@/components/ui/slider"
+import { useRouter } from "next/navigation"
+import Image from "next/image"
 
-const SIZES = ["0", "2", "4", "6", "8", "10", "12", "14", "16"]
-const HEIGHTS = [
-  { value: "under_5", label: "< 5'" },
-  { value: "5_to_5_5", label: "5'1\" - 5'5\"" },
-  { value: "5_5_to_5_8", label: "5'5\" - 5'8\"" },
-  { value: "over_5_9", label: "5'9\"+'" },
-]
-const STYLES = ["Casual", "Elegant", "Boho", "Minimalist", "Edgy", "Romantic"]
-
-export default function HomePage() {
-  const router = useRouter()
+export default function Home() {
+  const [showFilters, setShowFilters] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
   const [selectedSize, setSelectedSize] = useState<string>("")
-  const [selectedHeight, setSelectedHeight] = useState<string>("")
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState([0, 100])
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([])
+  const router = useRouter()
 
-  const toggleStyle = (style: string) => {
-    setSelectedStyles((prev) => (prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style]))
-  }
+  const sizes = ["0", "2", "4", "6", "8", "10", "12", "14", "16"]
+  const brands = ["Zara", "H&M", "Abercrombie", "Urban Outfitters"]
 
   const handleSearch = () => {
-    const params = new URLSearchParams()
+    if (searchQuery.trim()) {
+      router.push(`/shop?query=${encodeURIComponent(searchQuery)}`)
+    }
+  }
 
+  const handleGetStarted = () => {
+    setShowFilters(!showFilters)
+  }
+
+  const handleFilterSubmit = () => {
+    const params = new URLSearchParams()
     if (selectedSize) params.set("sizes", selectedSize)
-    if (selectedHeight) params.set("heights", selectedHeight)
+    if (selectedBrands.length > 0) params.set("brands", selectedBrands.join(","))
     params.set("minPrice", priceRange[0].toString())
     params.set("maxPrice", priceRange[1].toString())
-    // Join multiple styles into a single "aesthetic" query for Flask
-    if (selectedStyles.length > 0) {
-      params.set("aesthetic", selectedStyles.join(", "))
-    }
 
-    console.log("[v0] Searching with filters:", Object.fromEntries(params))
     router.push(`/shop?${params.toString()}`)
   }
 
+  const toggleBrand = (brand: string) => {
+    setSelectedBrands((prev) => (prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]))
+  }
+
   return (
-    <div className="min-h-screen py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <Card className="p-8 bg-white/80 backdrop-blur border-[#E8DFD8]">
-          <h1 className="text-3xl font-serif text-center mb-8 text-[#5C4A42]">Personalize Your Search</h1>
-
-          {/* Size Selection */}
-          <div className="mb-8">
-            <Label className="text-base mb-3 block text-center text-[#5C4A42]">My size:</Label>
-            <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
-              {SIZES.map((size) => (
-                <Button
-                  key={size}
-                  variant={selectedSize === size ? "default" : "outline"}
-                  onClick={() => setSelectedSize(size)}
-                  className={`${
-                    selectedSize === size
-                      ? "bg-[#C4A69D] text-white hover:bg-[#B39589]"
-                      : "bg-white border-[#E8DFD8] text-[#5C4A42] hover:bg-[#E8DFD8]"
-                  }`}
-                >
-                  {size}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Height Selection */}
-          <div className="mb-8">
-            <Label className="text-base mb-3 block text-center text-[#5C4A42]">Height:</Label>
-            <RadioGroup value={selectedHeight} onValueChange={setSelectedHeight} className="grid grid-cols-2 gap-3">
-              {HEIGHTS.map((height) => (
-                <div
-                  key={height.value}
-                  className={`flex items-center space-x-2 border rounded-lg p-4 cursor-pointer transition-colors ${
-                    selectedHeight === height.value
-                      ? "border-[#C4A69D] bg-[#C4A69D]/10"
-                      : "border-[#E8DFD8] hover:bg-[#E8DFD8]/50"
-                  }`}
-                  onClick={() => setSelectedHeight(height.value)}
-                >
-                  <RadioGroupItem value={height.value} id={height.value} />
-                  <Label htmlFor={height.value} className="cursor-pointer text-[#5C4A42] flex-1">
-                    {height.label}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-
-          {/* Price Range */}
-          <div className="mb-8">
-            <Label className="text-base mb-3 block text-center text-[#5C4A42]">Price Range:</Label>
-            <div className="px-2">
-              <Slider value={priceRange} onValueChange={setPriceRange} max={200} step={10} className="mb-2" />
-              <p className="text-center text-sm text-[#7A6B63]">
-                ${priceRange[0]} - ${priceRange[1] === 200 ? "200+" : priceRange[1]}
-              </p>
-            </div>
-          </div>
-
-          {/* Style Selection */}
-          <div className="mb-8">
-            <Label className="text-base mb-3 block text-center text-[#5C4A42]">My style:</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {STYLES.map((style) => (
-                <Button
-                  key={style}
-                  variant={selectedStyles.includes(style) ? "default" : "outline"}
-                  onClick={() => toggleStyle(style)}
-                  className={`h-auto py-4 text-base ${
-                    selectedStyles.includes(style)
-                      ? "bg-[#C4A69D] text-white hover:bg-[#B39589]"
-                      : "bg-white border-[#E8DFD8] text-[#5C4A42] hover:bg-[#E8DFD8]"
-                  }`}
-                >
-                  {style}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* Search Button */}
-          <Button
-            onClick={handleSearch}
-            className="w-full bg-[#C4A69D] hover:bg-[#B39589] text-white h-12 text-lg"
-            disabled={selectedStyles.length === 0}
-          >
-            Find My Perfect Fit
-          </Button>
-        </Card>
+    <main className="min-h-screen flex flex-col items-center justify-center px-4">
+      <div className="mb-12">
+        <Image src="/logo.png" alt="The Fitting Room" width={300} height={100} className="object-contain" />
       </div>
-    </div>
+
+      {/* Hero Section */}
+      <div className="w-full max-w-2xl text-center space-y-8">
+        <h1 className="text-5xl md:text-6xl font-serif text-[#C4A69D] mb-8">Find your fit</h1>
+
+        <div className="relative">
+          <div className="glass-search-bar flex items-center gap-3 px-6 py-4 rounded-full">
+            <Search className="w-5 h-5 text-[#C4A69D] shrink-0" />
+            <input
+              type="text"
+              placeholder="search styles"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              className="flex-1 bg-transparent border-none outline-none text-[#5C4A42] placeholder:text-[#C4A69D]/60 font-serif"
+            />
+          </div>
+        </div>
+
+        {/* Get Started Button */}
+        <Button
+          onClick={handleGetStarted}
+          size="lg"
+          className="bg-[#C4A69D] hover:bg-[#B89888] text-white px-12 py-6 rounded-full text-lg font-serif"
+        >
+          Get Started Now
+        </Button>
+
+        {showFilters && (
+          <div className="mt-12 glass-card p-8 rounded-3xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h2 className="text-2xl font-serif text-[#C4A69D]">Personalize Your Search</h2>
+
+            {/* Size Selection */}
+            <div className="space-y-4">
+              <label className="text-sm font-serif text-[#5C4A42]">My size:</label>
+              <div className="flex flex-wrap gap-2">
+                {sizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-6 py-2 rounded-full border-2 font-serif transition-all ${
+                      selectedSize === size
+                        ? "border-[#C4A69D] bg-[#C4A69D] text-white"
+                        : "border-[#C4A69D]/30 bg-white/50 text-[#5C4A42] hover:border-[#C4A69D]"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Brand Selection */}
+            <div className="space-y-4">
+              <label className="text-sm font-serif text-[#5C4A42]">My brands:</label>
+              <div className="flex flex-wrap gap-2">
+                {brands.map((brand) => (
+                  <button
+                    key={brand}
+                    onClick={() => toggleBrand(brand)}
+                    className={`px-6 py-2 rounded-full border-2 font-serif transition-all ${
+                      selectedBrands.includes(brand)
+                        ? "border-[#C4A69D] bg-[#C4A69D] text-white"
+                        : "border-[#C4A69D]/30 bg-white/50 text-[#5C4A42] hover:border-[#C4A69D]"
+                    }`}
+                  >
+                    {brand}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Range */}
+            <div className="space-y-4">
+              <label className="text-sm font-serif text-[#5C4A42]">Price Range:</label>
+              <div className="space-y-2">
+                <input
+                  type="range"
+                  min="0"
+                  max="500"
+                  value={priceRange[1]}
+                  onChange={(e) => setPriceRange([0, Number.parseInt(e.target.value)])}
+                  className="w-full accent-[#C4A69D]"
+                />
+                <p className="text-center font-serif text-[#5C4A42]">
+                  ${priceRange[0]} - ${priceRange[1]}+
+                </p>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleFilterSubmit}
+              size="lg"
+              className="w-full bg-[#C4A69D] hover:bg-[#B89888] text-white py-6 rounded-full text-lg font-serif"
+            >
+              Find My Perfect Fit
+            </Button>
+          </div>
+        )}
+      </div>
+    </main>
   )
 }

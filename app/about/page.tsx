@@ -1,70 +1,83 @@
+import { Card } from "@/components/ui/card"
 import Image from "next/image"
-import { Header } from "@/components/header"
 
 export default function AboutPage() {
   return (
-    <>
-      <Header />
-      <main className="min-h-screen bg-[#F5F1ED] py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-3xl shadow-sm p-8 md:p-12">
-            <h1 className="text-4xl md:text-5xl font-serif text-center text-[#5C4A42] mb-8">About The Fitting Room</h1>
+    <div className="min-h-screen py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <Card className="p-8 md:p-12 bg-white/80 backdrop-blur border-[#E8DFD8]">
+          <h1 className="text-4xl md:text-5xl font-serif text-center mb-6 text-[#5C4A42]">About The Fitting Room</h1>
 
-            <div className="space-y-6 text-[#6B5A52] leading-relaxed">
-              <p className="text-lg">
-                Welcome to The Fitting Room, where fashion meets personalization. We believe that everyone deserves to
-                feel confident and comfortable in what they wear.
-              </p>
+          <div className="prose prose-lg max-w-none">
+            <p className="text-lg text-[#7A6B63] font-sans leading-relaxed mb-6">
+              Welcome to The Fitting Room, where fashion meets personalization. We believe that everyone deserves to
+              feel confident and comfortable in what they wear.
+            </p>
 
-              <p className="text-lg">
-                Our mission is simple: help you discover clothing that truly fits your unique style, body type, and
-                lifestyle. No more endless scrolling through items that don&apos;t match your preferences. No more
-                buying pieces that don&apos;t quite work.
-              </p>
+            <p className="text-lg text-[#7A6B63] font-sans leading-relaxed mb-6">
+              Our mission is simple: help you discover clothing that truly fits your unique style, body type, and
+              lifestyle. No more endless scrolling through items that don't match your preferences. No more buying
+              pieces that don't quite work.
+            </p>
 
-              <div className="my-8 rounded-2xl overflow-hidden">
-                <Image
-                  src="/images/design-mode/Screenshot%202025-11-08%20012041.png"
-                  alt="Shopping experience"
-                  width={800}
-                  height={400}
-                  className="w-full h-auto"
-                />
+            <div className="relative w-full h-64 md:h-96 my-8 rounded-lg overflow-hidden">
+              <Image src="/about.png" alt="The Fitting Room store" fill className="object-cover" />
+            </div>
+
+            <h2 className="text-2xl font-serif text-[#5C4A42] mt-8 mb-4">How It Works</h2>
+
+            <div className="space-y-4 mb-8">
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#C4A69D] flex items-center justify-center text-white font-bold">
+                  1
+                </div>
+                <div>
+                  <h3 className="font-bold text-[#5C4A42] mb-1">Tell Us About Yourself</h3>
+                  <p className="text-[#7A6B63] font-sans">
+                    Share your size, height, style preferences, and budget to personalize your experience.
+                  </p>
+                </div>
               </div>
 
-              <p className="text-lg">
-                We use your personal style preferences, measurements, and favorite aesthetics to curate a shopping
-                experience tailored just for you. Every recommendation is handpicked to match your criteria, ensuring
-                that every piece you discover is one you&apos;ll love.
-              </p>
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#C4A69D] flex items-center justify-center text-white font-bold">
+                  2
+                </div>
+                <div>
+                  <h3 className="font-bold text-[#5C4A42] mb-1">Browse Curated Results</h3>
+                  <p className="text-[#7A6B63] font-sans">
+                    We search across multiple brands to find pieces that match your specific criteria.
+                  </p>
+                </div>
+              </div>
 
-              <div className="bg-[#F9F6F3] rounded-2xl p-6 md:p-8 mt-8">
-                <h2 className="text-2xl font-serif text-[#C4A69D] mb-4">Our Values</h2>
-                <ul className="space-y-3 text-[#6B5A52]">
-                  <li className="flex items-start">
-                    <span className="text-[#C4A69D] mr-2">•</span>
-                    <span>
-                      <strong>Personalization first</strong> - your style is unique
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-[#C4A69D] mr-2">•</span>
-                    <span>
-                      <strong>Quality over quantity</strong> - curated selections
-                    </span>
-                  </li>
-                  <li className="flex items-start">
-                    <span className="text-[#C4A69D] mr-2">•</span>
-                    <span>
-                      <strong>Inclusive sizing</strong> - fashion for every body
-                    </span>
-                  </li>
-                </ul>
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#C4A69D] flex items-center justify-center text-white font-bold">
+                  3
+                </div>
+                <div>
+                  <h3 className="font-bold text-[#5C4A42] mb-1">Find Your Perfect Fit</h3>
+                  <p className="text-[#7A6B63] font-sans">
+                    Discover clothing that works for you, with direct links to purchase from trusted retailers.
+                  </p>
+                </div>
               </div>
             </div>
+
+            <h2 className="text-2xl font-serif text-[#5C4A42] mt-8 mb-4">Our Vision</h2>
+
+            <p className="text-lg text-[#7A6B63] font-sans leading-relaxed mb-6">
+              We're building more than just a search engine. We're creating a personalized shopping experience that
+              understands your needs and helps you build a wardrobe you love. Our AI-powered recommendations learn from
+              your preferences to suggest pieces that truly fit your style.
+            </p>
+
+            <p className="text-lg text-[#7A6B63] font-sans leading-relaxed">
+              Join us in revolutionizing the way you shop for clothes. Welcome to your fitting room.
+            </p>
           </div>
-        </div>
-      </main>
-    </>
+        </Card>
+      </div>
+    </div>
   )
 }
