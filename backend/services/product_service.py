@@ -1,68 +1,76 @@
-from typing import List, Dict, Optional
-import logging
-from database.db_manager import DatabaseManager
-from config import Config
+import pandas as pd
 
-logger = logging.getLogger(__name__)
+path_name = "/Users/Meron/Desktop/Duke/Hackathon_FittingRoomAI/backend/scrapers/data/processed/zara_2417772_20251108-114030.csv"
 
 
-class ProductService:
+def search_items(
+    csv_path=path_name,
+    product_ids=None,
+    style_keywords=None,
+    min_price=None,
+    max_price=None,
+    sizes=None,
+    brands=None,
+    page=1,
+    limit=20,
+):
     """
-    Product service layer - handles business logic for product operations
+    Search products in a CSV file based on filters (size, brand, price, etc.)
+    Returns a dictionary with product IDs and metadata.
     """
 
-    def __init__(self):
-        self.db = DatabaseManager()
+    # --- Load CSV ---
+    df = pd.read_csv(csv_path)
 
-    def search_products(
-        self,
-        style_keywords: Optional[List[str]] = None,
-        min_price: Optional[float] = None,
-        max_price: Optional[float] = None,
-        sizes: Optional[List[str]] = None,
-        brands: Optional[List[str]] = None,
-        page: int = 1,
-        limit: int = 20,
-    ) -> Dict:
-        """
-        Search products with filters and return paginated results
-        """
-        logger.info(f"Searching products with keywords: {style_keywords}")
+    # --- Filter step by step ---
+    if product_ids:
+        df = df[df["product_id"].isin(product_ids)]
 
-        products = self.db.search_products(
-            style_keywords=style_keywords,
-            min_price=min_price,
-            max_price=max_price,
-            sizes=sizes,
-            brands=brands,
-            page=page,
-            limit=limit,
+    if sizes:
+        df = df[df["size"].isin(sizes)]
+
+    if brands:
+        df = df[df["brand"].isin(brands)]
+
+    if min_price is not None:
+        df = df[df["price"] >= min_price]
+
+    if max_price is not None:
+        df = df[df["price"] <= max_price]
+
+    # --- Optional: match style keywords (e.g., from NLP aesthetic) ---
+    if style_keywords:
+        keyword_mask = df["name"].str.contains(
+            "|".join(style_keywords), case=False, na=False
         )
+        df = df[keyword_mask]
 
-        total_count = self.db.get_product_count(
-            style_keywords=style_keywords,
-            min_price=min_price,
-            max_price=max_price,
-            sizes=sizes,
-            brands=brands,
-        )
+    # --- Pagination ---
+    start = (page - 1) * limit
+    end = start + limit
+    paginated = df.iloc[start:end]
 
-        return {
-            "products": products,
-            "total": total_count,
-            "page": page,
-            "limit": limit,
-            "totalPages": (total_count + limit - 1) // limit,
-        }
+    # --- Build response ---
+    result = {"products": paginated.to_dict(orient="records"), "total": len(paginated)}
 
-    def get_product_by_id(self, product_id: int) -> Optional[Dict]:
-        """Get a single product by ID"""
-        return self.db.get_product_by_id(product_id)
+    return result
 
-    def get_all_brands(self) -> List[str]:
-        """Get list of all available brands"""
-        return self.db.get_all_brands()
 
-    def add_product(self, product_data: Dict) -> int:
-        """Add a new product to the database"""
-        return self.db.insert_product(product_data)
+def get_product_by_id(csv_path=path_name, product_id=None):
+    """
+    Retrieve a single product by its ID from the CSV file.
+    Returns a dictionary with product details or None if not found.
+    """
+    if product_id is None:
+        raise ValueError("Product ID must be provided")
+
+    # Load CSV
+    df = pd.read_csv(csv_path)
+
+    # Filter by product ID
+    product = df[df["product_id"] == product_id]
+
+    if not product.empty:
+        return product.iloc[0].to_dict()
+    else:
+        return None
