@@ -4,9 +4,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-CATEGORY_API = (
-    "https://www.zara.com/us/en/category/2417772/products?regionGroupId=133&ajax=true"
-)
+CATEGORY_API = {
+    "jackets": "https://www.zara.com/us/en/category/2417772/products?regionGroupId=133&ajax=true",
+    "tops": "https://www.zara.com/us/en/category/2419940/products?regionGroupId=133&ajax=true",
+    "pants": "https://www.zara.com/us/en/category/2420795/products?regionGroupId=133&ajax=true",
+    "dresses": "https://www.zara.com/us/en/category/2420896/products?regionGroupId=133&ajax=true",
+    "skirts": "https://www.zara.com/us/en/category/2420454/products?regionGroupId=133&ajax=true",
+    "jeans": "https://www.zara.com/us/en/category/2419185/products?regionGroupId=133&ajax=true",
+}
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -37,7 +42,7 @@ def build_product_url(keyword, seo_product_id):
     return None
 
 
-def normalize(json_data):
+def normalize(json_data, category_name):
     out_rows = []
     pgroups = json_data.get("productGroups") or []
     for grp in pgroups:
@@ -63,7 +68,7 @@ def normalize(json_data):
                 colors = detail.get("colors") or []
                 color0 = first_or_none(colors) or {}
                 color_name = color0.get("name")
-                
+
                 pdp_media = comp.get("pdpMedia")
                 if pdp_media and (pdp_media.get("extraInfo") or {}).get("deliveryUrl"):
                     image_url = pdp_media["extraInfo"]["deliveryUrl"]
@@ -87,52 +92,54 @@ def normalize(json_data):
                         "color": color_name,
                         "image_url": image_url,
                         "product_url": product_url,
-                        "category": "jackets",
+                        "category": category_name,
                     }
                 )
     return out_rows
 
 
-def fetch_zara_products(save_raw=True, save_csv=True):
+def fetch_zara_products(save_raw=True, save_csv=True, category_name="combined"):
     """
     Fetch products from Zara API and optionally save raw JSON and CSV
     Returns: list of normalized product dictionaries
     """
     logger.info("Fetching Zara products...")
-    
+
+    all_rows = []
     try:
-        r = requests.get(CATEGORY_API, headers=HEADERS, timeout=30)
-        r.raise_for_status()
-        data = r.json()
+        for category_name, api_url in CATEGORY_API.items():
+            r = requests.get(api_url, headers=HEADERS, timeout=30)
+            r.raise_for_status()
+            data = r.json()
+            print(category_name)
+            if save_raw:
+                ts = time.strftime("%Y%m%d-%H%M%S")
+                raw_dir = pathlib.Path("data/raw")
+                raw_dir.mkdir(parents=True, exist_ok=True)
+                raw_path = raw_dir / f"zara_{category_name}_{ts}.json"
+                with raw_path.open("w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+                logger.info(f"Saved raw JSON → {raw_path}")
 
-        if save_raw:
-            ts = time.strftime("%Y%m%d-%H%M%S")
-            raw_dir = pathlib.Path("data/raw")
-            raw_dir.mkdir(parents=True, exist_ok=True)
-            raw_path = raw_dir / f"zara_2417772_{ts}.json"
-            with raw_path.open("w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            logger.info(f"Saved raw JSON → {raw_path}")
+            rows = normalize(data, category_name)
+            all_rows.extend(rows)
+            logger.info(f"Parsed {len(rows)} products from Zara")
 
-        rows = normalize(data)
-        logger.info(f"Parsed {len(rows)} products from Zara")
-
-        if save_csv and rows:
+        if save_csv and all_rows:
             ts = time.strftime("%Y%m%d-%H%M%S")
             processed_dir = pathlib.Path("data/processed")
             processed_dir.mkdir(parents=True, exist_ok=True)
-            csv_path = processed_dir / f"zara_2417772_{ts}.csv"
+            csv_path = processed_dir / f"zara_combined_{ts}.csv"
             with csv_path.open("w", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+                writer = csv.DictWriter(f, fieldnames=list(all_rows[0].keys()))
                 writer.writeheader()
-                writer.writerows(rows)
+                writer.writerows(all_rows)
             logger.info(f"Saved CSV → {csv_path}")
-
-        return rows
-    
     except Exception as e:
         logger.error(f"Error fetching Zara products: {e}")
         raise
+
+    return all_rows
 
 
 if __name__ == "__main__":
