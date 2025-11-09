@@ -42,8 +42,8 @@ def search_products():
         aesthetic = f"the aesthethic the person wants is: {aesthetic} and the person's height is: {heights}"
         if aesthetic:
             # Get structured clothing recommendations from OpenAI
-            recommendations = run_nlp_search(aesthetic)
-            logger.info(f"NLP recommendations: {recommendations}")
+            clothing_recommendations = run_nlp_search(aesthetic)
+            logger.info(f"NLP recommendations: {clothing_recommendations}")
 
             # # Extract search terms from recommendations
             # if isinstance(recommendations, list):
@@ -70,21 +70,25 @@ def search_products():
 
         # --- New: Find similar items/colors based on embeddings ---
         similar_results = []
+        print(clothing_recommendations)
         if clothing_recommendations:
             for rec in clothing_recommendations:
-                item = rec.get("item_type", "")
-                color = rec.get("color", "")
-                query_text = f"{color} {item}".strip()
+                # item = rec.get("item_type", "")
+                # color = rec.get("color", "")
+                # query_text = f"{color} {item}".strip()
+                query_text = rec  # since rec is now a concise string
                 if query_text:
                     logger.info(f"Finding similar products for: {query_text}")
                     similar = find_similar_items(query_text, top_k=5)
                     similar_results.extend(similar)
-        #print(clothing_recommendations)
-        # print(similar_results)
+            # print(similar_results)
+        # print(clothing_recommendations)
+        print(similar_results)
 
         # --- Use our new search function ---
         result = search_items(
             style_keywords=style_keywords,
+            product_ids=similar_results,
             min_price=min_price,
             max_price=max_price,
             sizes=size_list,
@@ -92,6 +96,7 @@ def search_products():
             page=page,
             limit=limit,
         )
+        # print(result)
 
         return jsonify(result)
 

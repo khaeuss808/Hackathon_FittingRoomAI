@@ -23,6 +23,7 @@ def search_items(
     df = pd.read_csv(csv_path)
 
     # --- Filter step by step ---
+    df["product_id"] = df["product_id"].astype(str)
     if product_ids:
         df = df[df["product_id"].isin(product_ids)]
 

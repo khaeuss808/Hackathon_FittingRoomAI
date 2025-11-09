@@ -78,12 +78,12 @@ function ShopContent() {
       }
 
       const data = await response.json()
-      console.log("[v0] Fetched products:", data)
-      setProducts(data.results || [])
+      console.log("Fetched products:", data)
+      setProducts(data.products || [])
       setTotal(data.total || 0)
       setTotalPages(Math.ceil((data.total || 0) / perPage))
     } catch (error) {
-      console.error("[v0] Error fetching products:", error)
+      console.error("Error fetching products:", error)
       setProducts([])
       setTotal(0)
       setTotalPages(1)
@@ -218,22 +218,9 @@ function ShopContent() {
                     </div>
                     <div className="p-4">
                       <h3 className="text-sm font-medium text-[#5C4A42] mb-1 line-clamp-2">
-                        {product.name || product.product_name}
+                        {product.name || product.product_name || "Unnamed Product"}
                       </h3>
-                      <p className="text-xs text-[#8C7A72] mb-2">{product.brand}</p>
-                      <div className="flex justify-between items-center">
-                        <span className="text-lg font-semibold text-[#5C4A42]">{formatPrice(product)}</span>
-                        {(product.product_url || product.url) && (
-                          <a
-                            href={product.product_url || product.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-[#C4A69D] hover:text-[#B09589]"
-                          >
-                            View →
-                          </a>
-                        )}
-                      </div>
+                      <p className="text-xs text-[#6B5A52]">${product.price || "N/A"}</p>
                     </div>
                   </div>
                 ))}
