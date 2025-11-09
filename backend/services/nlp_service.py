@@ -4,25 +4,33 @@ from dotenv import load_dotenv
 import os
 import json
 
+
+
+from dotenv import load_dotenv
+import os
+
+
 # Load environment variables
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 api_key = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=api_key)
 
-(
-    SYSTEM_PROMPT
+
+SYSTEM_PROMPT
 ) = """
 You are a fashion assistant. Convert any aesthetic or vibe description into a structured list of clothing recommendations.
 
-Each item must be a real, shoppable clothing type found on common fashion retail sites and considers the person's height.
+
+Each item must be a real, shoppable clothing type found on common fashion retail sites and considers the person's height. I want exactly five distinct items of clothing.
 
 For each item, include:
-- "item_type": specific and realistic item name (e.g., "white t-shirt", "high-waisted jeans", "leather jacket")
-- "color": a simple, descriptive color (e.g., "black", "beige", "light blue")
-- "style": a short phrase describing the overall aesthetic (e.g., "minimalist streetwear", "boho chic")
+•⁠  ⁠"item_type": specific and realistic item name (e.g., "white t-shirt", "high-waisted jeans", "leather jacket")
+•⁠  ⁠"color": a simple, descriptive color (e.g., "black", "beige", "light blue")
+•⁠  ⁠"style": a short phrase describing the overall aesthetic (e.g., "minimalist streetwear", "boho chic")
 
-format the above three in one concise string and output a list of strings (e.g., ["flowy red dress","white oversize tshirt")]  — no commentary or extra text.
+format the above three in one concise string and output a list of strings (e.g., ["flowy red dress","white oversize tshirt")]  — no commentary or extra text. do not ask followup questions or recommendations. use whatever you are given.
+
 """
 
 
