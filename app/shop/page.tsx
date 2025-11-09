@@ -40,11 +40,11 @@ export default function ShopPage() {
 
   useEffect(() => {
     const aesthetic = searchParams.get("aesthetic")
+    const brands = searchParams.get("brands")
     const sizes = searchParams.get("sizes")
     const heights = searchParams.get("heights")
     const minPrice = searchParams.get("minPrice")
     const maxPrice = searchParams.get("maxPrice")
-
     console.log("[v0] Shop page filters:", { aesthetic, sizes, heights, minPrice, maxPrice })
 
     fetchProducts(currentPage)
@@ -144,16 +144,16 @@ export default function ShopPage() {
                 </div>
               </CardHeader>
               <CardContent className="flex-1 p-4">
-                <CardTitle className="text-base mb-2 line-clamp-2 text-[#5C4A42]">{product.name}</CardTitle>
+                <CardTitle className="text-base mb-2 line-clamp-2 text-[#5C4A42] font-sans ">{product.name}</CardTitle>
                 <div className="flex items-center justify-between mb-2">
-                  <Badge className="bg-[#E8DFD8] text-[#5C4A42] hover:bg-[#E8DFD8]">{product.brand}</Badge>
-                  <span className="font-bold text-lg text-[#5C4A42]">${product.price.toFixed(2)}</span>
+                  <Badge className="bg-[#E8DFD8] text-[#5C4A42] font-sans hover:bg-[#E8DFD8]">{product.brand}</Badge>
+                  <span className="font-bold text-lg text-[#5C4A42] font-sans ">${product.price.toFixed(2)}</span>
                 </div>
-                {product.color && <p className="text-sm text-[#7A6B63]">Color: {product.color}</p>}
+                {product.color && <p className="text-sm text-[#7A6B63] font-sans">Color: {product.color}</p>}
               </CardContent>
               <CardFooter className="p-4 pt-0">
                 {product.url ? (
-                  <Button className="w-full bg-[#C4A69D] hover:bg-[#B39589] text-white" asChild>
+                  <Button className="w-full bg-[#C4A69D] hover:bg-[#B39589] text-white font-sans" asChild>
                     <a href={product.url} target="_blank" rel="noopener noreferrer">
                       View Product
                     </a>
@@ -174,18 +174,18 @@ export default function ShopPage() {
               variant="outline"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="border-[#E8DFD8] text-[#5C4A42] hover:bg-[#E8DFD8]"
+              className="border-[#E8DFD8] text-[#5C4A42] font-sans hover:bg-[#E8DFD8]"
             >
               Previous
             </Button>
-            <span className="text-sm text-[#7A6B63]">
+            <span className="text-sm text-[#7A6B63] font-sans">
               Page {currentPage} of {totalPages}
             </span>
             <Button
               variant="outline"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="border-[#E8DFD8] text-[#5C4A42] hover:bg-[#E8DFD8]"
+              className="border-[#E8DFD8] text-[#5C4A42] font-sans hover:bg-[#E8DFD8]"
             >
               Next
             </Button>

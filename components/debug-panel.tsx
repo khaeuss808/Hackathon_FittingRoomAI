@@ -35,7 +35,7 @@ export function DebugPanel() {
 
     checkHealth()
     // Refresh every 5 seconds
-    const interval = setInterval(checkHealth, 5000)
+    const interval = setInterval(checkHealth, 5001)
     return () => clearInterval(interval)
   }, [])
 

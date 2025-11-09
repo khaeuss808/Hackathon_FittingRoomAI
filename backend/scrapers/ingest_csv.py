@@ -3,12 +3,14 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 import logging
 
+# from backend.config import Config
+
 logger = logging.getLogger(__name__)
 
 
 def get_db_path():
     """Get database path from environment or default"""
-    return os.environ.get("DB_PATH", "../data/fittingroom.db")
+    return "backend/data/fittingroom.db"
 
 
 def get_engine():
@@ -95,7 +97,7 @@ def normalize(df: pd.DataFrame) -> pd.DataFrame:
         except Exception:
             return None
 
-    df2["price"] = df2["price"].apply(to_price)
+    # df2["price"] = df2["price"].apply(to_price)
     df2["price_cents"] = (df2["price"].fillna(0) * 100).round().astype(int)
     df2["source"] = (
         df.get("source", "zara").iloc[0] if "source" in df.columns else "zara"
@@ -143,6 +145,7 @@ def ingest_csvs_to_db(csv_pattern="data/processed/zara_*.csv"):
         logger.info(f"Loading {p}")
         df = pd.read_csv(p)
         df = normalize(df)
+        df.drop_duplicates(subset=["name", "color"], inplace=True)
         df.to_sql("products", engine, if_exists="append", index=False)
         total_ingested += len(df)
 
