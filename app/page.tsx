@@ -3,160 +3,139 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Card } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
-import { X } from "lucide-react"
-import { Header } from "@/components/header"
+
+const SIZES = ["0", "2", "4", "6", "8", "10", "12", "14", "16"]
+const HEIGHTS = [
+  { value: "under_5", label: "< 5'" },
+  { value: "5_to_5_5", label: "5'1\" - 5'5\"" },
+  { value: "5_5_to_5_8", label: "5'5\" - 5'8\"" },
+  { value: "over_5_9", label: "5'9\"+'" },
+]
+const STYLES = ["Casual", "Elegant", "Boho", "Minimalist", "Edgy", "Romantic"]
 
 export default function HomePage() {
   const router = useRouter()
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+  const [selectedSize, setSelectedSize] = useState<string>("")
   const [selectedHeight, setSelectedHeight] = useState<string>("")
-  const [priceRange, setPriceRange] = useState([0, 200])
-  const [aesthetic, setAesthetic] = useState("")
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
+  const [priceRange, setPriceRange] = useState([0, 100])
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([])
 
-  const sizes = ["0", "2", "4", "6", "8", "10", "12", "14", "16"]
-  const heights = [
-    { value: "<5'", label: "< 5'" },
-    { value: "<5'1-5'5", label: "< 5'1 - 5'5" },
-    { value: "<5'5-5'8", label: "< 5'5 - 5'8" },
-    { value: "<5'9+", label: "< 5'9+" },
-  ]
-  const brands = ["H&M", "Zara", "Everlane", "Reformation", "Patagonia"]
-
-  const handleSizeToggle = (size: string) => {
-    setSelectedSizes((prev) => (prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]))
-  }
-
-  const handleBrandToggle = (brand: string) => {
-    setSelectedBrands((prev) => (prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]))
+  const toggleStyle = (style: string) => {
+    setSelectedStyles((prev) => (prev.includes(style) ? prev.filter((s) => s !== style) : [...prev, style]))
   }
 
   const handleSearch = () => {
     const params = new URLSearchParams()
-    if (selectedSizes.length) params.set("sizes", selectedSizes.join(","))
-    if (selectedHeight) params.set("height", selectedHeight)
-    params.set("min_price", priceRange[0].toString())
-    params.set("max_price", priceRange[1].toString())
-    if (aesthetic) params.set("aesthetic", aesthetic)
-    if (selectedBrands.length) params.set("brands", selectedBrands.join(","))
 
+    if (selectedSize) params.set("sizes", selectedSize)
+    if (selectedHeight) params.set("heights", selectedHeight)
+    params.set("minPrice", priceRange[0].toString())
+    params.set("maxPrice", priceRange[1].toString())
+    // Join multiple styles into a single "aesthetic" query for Flask
+    if (selectedStyles.length > 0) {
+      params.set("aesthetic", selectedStyles.join(", "))
+    }
+
+    console.log("[v0] Searching with filters:", Object.fromEntries(params))
     router.push(`/shop?${params.toString()}`)
   }
 
   return (
-    <>
-      <Header />
-      <main className="min-h-screen bg-[#F5F1ED] py-12 px-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-3xl shadow-sm p-8 md:p-12">
-            <h1 className="text-3xl md:text-4xl font-serif text-center text-[#5C4A42] mb-8">Personalize Your Search</h1>
+    <div className="min-h-screen py-12 px-4">
+      <div className="max-w-2xl mx-auto">
+        <Card className="p-8 bg-white/80 backdrop-blur border-[#E8DFD8]">
+          <h1 className="text-3xl font-serif text-center mb-8 text-[#5C4A42]">Personalize Your Search</h1>
 
-            {/* Size Selection */}
-            <div className="mb-8">
-              <h2 className="text-lg font-medium text-[#5C4A42] mb-4 text-center">My size:</h2>
-              <div className="flex flex-wrap justify-center gap-3">
-                {sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => handleSizeToggle(size)}
-                    className={`w-12 h-12 flex items-center justify-center border-2 rounded-lg transition-colors ${
-                      selectedSizes.includes(size)
-                        ? "border-[#C4A69D] bg-[#C4A69D]/10 text-[#5C4A42]"
-                        : "border-[#D4C4BC] text-[#8C7A72] hover:border-[#C4A69D]"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Height Selection */}
-            <div className="mb-8">
-              <h2 className="text-lg font-medium text-[#5C4A42] mb-4 text-center">Height:</h2>
-              <RadioGroup value={selectedHeight} onValueChange={setSelectedHeight}>
-                <div className="flex flex-wrap justify-center gap-4">
-                  {heights.map((height) => (
-                    <div key={height.value} className="flex items-center space-x-2">
-                      <RadioGroupItem value={height.value} id={height.value} />
-                      <Label htmlFor={height.value} className="text-[#5C4A42] cursor-pointer">
-                        {height.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </RadioGroup>
-            </div>
-
-            {/* Price Range */}
-            <div className="mb-8">
-              <h2 className="text-lg font-medium text-[#5C4A42] mb-4 text-center">Price Range:</h2>
-              <div className="px-4">
-                <Slider min={0} max={500} step={10} value={priceRange} onValueChange={setPriceRange} className="mb-3" />
-                <div className="flex justify-between text-sm text-[#8C7A72]">
-                  <span>${priceRange[0]}</span>
-                  <span>${priceRange[1]}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Aesthetic Input */}
-            <div className="mb-8">
-              <h2 className="text-lg font-medium text-[#5C4A42] mb-4 text-center">What&apos;s your vibe?</h2>
-              <input
-                type="text"
-                placeholder="e.g., clean girl aesthetic, cottagecore, minimalist..."
-                value={aesthetic}
-                onChange={(e) => setAesthetic(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-[#D4C4BC] rounded-lg focus:outline-none focus:border-[#C4A69D] text-[#5C4A42] placeholder:text-[#B8A8A0]"
-              />
-            </div>
-
-            {/* Brands Selection */}
-            <div className="mb-8">
-              <h2 className="text-lg font-medium text-[#5C4A42] mb-4 text-center">Brands I like:</h2>
-              <div className="flex flex-wrap justify-center gap-3">
-                {selectedBrands.map((brand) => (
-                  <button
-                    key={brand}
-                    onClick={() => handleBrandToggle(brand)}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#C4A69D] text-white rounded-full hover:bg-[#B09589] transition-colors"
-                  >
-                    {brand}
-                    <X className="w-4 h-4" />
-                  </button>
-                ))}
-              </div>
-              <div className="flex flex-wrap justify-center gap-3 mt-3">
-                {brands
-                  .filter((brand) => !selectedBrands.includes(brand))
-                  .map((brand) => (
-                    <button
-                      key={brand}
-                      onClick={() => handleBrandToggle(brand)}
-                      className="px-4 py-2 border-2 border-[#D4C4BC] text-[#5C4A42] rounded-full hover:border-[#C4A69D] transition-colors"
-                    >
-                      + {brand}
-                    </button>
-                  ))}
-              </div>
-            </div>
-
-            {/* Search Button */}
-            <div className="text-center">
-              <Button
-                onClick={handleSearch}
-                className="bg-[#C4A69D] hover:bg-[#B09589] text-white px-12 py-6 text-lg rounded-full"
-              >
-                Find My Perfect Fit
-              </Button>
+          {/* Size Selection */}
+          <div className="mb-8">
+            <Label className="text-base mb-3 block text-center text-[#5C4A42]">My size:</Label>
+            <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+              {SIZES.map((size) => (
+                <Button
+                  key={size}
+                  variant={selectedSize === size ? "default" : "outline"}
+                  onClick={() => setSelectedSize(size)}
+                  className={`${
+                    selectedSize === size
+                      ? "bg-[#C4A69D] text-white hover:bg-[#B39589]"
+                      : "bg-white border-[#E8DFD8] text-[#5C4A42] hover:bg-[#E8DFD8]"
+                  }`}
+                >
+                  {size}
+                </Button>
+              ))}
             </div>
           </div>
-        </div>
-      </main>
-    </>
+
+          {/* Height Selection */}
+          <div className="mb-8">
+            <Label className="text-base mb-3 block text-center text-[#5C4A42]">Height:</Label>
+            <RadioGroup value={selectedHeight} onValueChange={setSelectedHeight} className="grid grid-cols-2 gap-3">
+              {HEIGHTS.map((height) => (
+                <div
+                  key={height.value}
+                  className={`flex items-center space-x-2 border rounded-lg p-4 cursor-pointer transition-colors ${
+                    selectedHeight === height.value
+                      ? "border-[#C4A69D] bg-[#C4A69D]/10"
+                      : "border-[#E8DFD8] hover:bg-[#E8DFD8]/50"
+                  }`}
+                  onClick={() => setSelectedHeight(height.value)}
+                >
+                  <RadioGroupItem value={height.value} id={height.value} />
+                  <Label htmlFor={height.value} className="cursor-pointer text-[#5C4A42] flex-1">
+                    {height.label}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+
+          {/* Price Range */}
+          <div className="mb-8">
+            <Label className="text-base mb-3 block text-center text-[#5C4A42]">Price Range:</Label>
+            <div className="px-2">
+              <Slider value={priceRange} onValueChange={setPriceRange} max={200} step={10} className="mb-2" />
+              <p className="text-center text-sm text-[#7A6B63]">
+                ${priceRange[0]} - ${priceRange[1] === 200 ? "200+" : priceRange[1]}
+              </p>
+            </div>
+          </div>
+
+          {/* Style Selection */}
+          <div className="mb-8">
+            <Label className="text-base mb-3 block text-center text-[#5C4A42]">My style:</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {STYLES.map((style) => (
+                <Button
+                  key={style}
+                  variant={selectedStyles.includes(style) ? "default" : "outline"}
+                  onClick={() => toggleStyle(style)}
+                  className={`h-auto py-4 text-base ${
+                    selectedStyles.includes(style)
+                      ? "bg-[#C4A69D] text-white hover:bg-[#B39589]"
+                      : "bg-white border-[#E8DFD8] text-[#5C4A42] hover:bg-[#E8DFD8]"
+                  }`}
+                >
+                  {style}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* Search Button */}
+          <Button
+            onClick={handleSearch}
+            className="w-full bg-[#C4A69D] hover:bg-[#B39589] text-white h-12 text-lg"
+            disabled={selectedStyles.length === 0}
+          >
+            Find My Perfect Fit
+          </Button>
+        </Card>
+      </div>
+    </div>
   )
 }

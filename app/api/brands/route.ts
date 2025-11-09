@@ -4,13 +4,9 @@ const FLASK_API_URL = process.env.FLASK_API_URL || "http://127.0.0.1:5001"
 
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams
+    const flaskUrl = `${FLASK_API_URL}/api/brands`
 
-    const queryString = searchParams.toString()
-    const flaskUrl = `${FLASK_API_URL}/api/search${queryString ? `?${queryString}` : ""}`
-
-    console.log("[v0] Proxying search request to Flask:", flaskUrl)
-    console.log("[v0] Query params:", Object.fromEntries(searchParams))
+    console.log("[v0] Fetching brands from Flask:", flaskUrl)
 
     const response = await fetch(flaskUrl, {
       method: "GET",
@@ -23,13 +19,13 @@ export async function GET(request: NextRequest) {
       const errorText = await response.text()
       console.error("[v0] Flask API error:", response.status, errorText)
       return NextResponse.json(
-        { error: `Backend API error: ${response.status}`, results: [], total: 0 },
+        { error: `Backend API error: ${response.status}`, brands: [] },
         { status: response.status },
       )
     }
 
     const data = await response.json()
-    console.log("[v0] Flask returned", data.total, "products")
+    console.log("[v0] Flask returned", data.brands?.length || 0, "brands")
 
     return NextResponse.json(data)
   } catch (error) {
@@ -37,8 +33,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         error: "Failed to connect to backend. Is Flask running on port 5001?",
-        results: [],
-        total: 0,
+        brands: [],
       },
       { status: 500 },
     )

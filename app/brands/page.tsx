@@ -1,67 +1,82 @@
-import Image from "next/image"
-import { Header } from "@/components/header"
+"use client"
 
-async function getBrands() {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5001"}/api/brands`, {
-      cache: "no-store",
-    })
+import { useEffect, useState } from "react"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
+import { AlertCircle, Loader2 } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { DebugPanel } from "@/components/debug-panel"
 
-    if (!res.ok) {
-      throw new Error("Failed to fetch brands")
-    }
-
-    const data = await res.json()
-    return data.brands || []
-  } catch (error) {
-    console.error("[v0] Error fetching brands:", error)
-    return []
-  }
+interface BrandsResponse {
+  brands: string[]
+  error?: string
 }
 
-export default async function BrandsPage() {
-  const brandsData = await getBrands()
+export default function BrandsPage() {
+  const [brands, setBrands] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const brands = brandsData.map((b: any) => ({
-    name: b.brand,
-    description: `Shop ${b.count} products from ${b.brand}`,
-    productCount: b.count,
-    image: b.image_url || `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop`,
-  }))
+  useEffect(() => {
+    async function fetchBrands() {
+      try {
+        console.log("[v0] Fetching brands from /api/brands")
+        const response = await fetch("/api/brands")
+        const data: BrandsResponse = await response.json()
+
+        if (data.error) {
+          setError(String(data.error))
+        } else {
+          console.log("[v0] Received brands:", data.brands)
+          setBrands(data.brands)
+        }
+      } catch (err) {
+        console.error("[v0] Error fetching brands:", err)
+        setError(err instanceof Error ? err.message : "Failed to load brands")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBrands()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <>
-      <Header />
-      <main className="min-h-screen bg-[#F5F1ED] py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-serif text-center text-[#5C4A42] mb-4">Featured Brands</h1>
-          <p className="text-center text-[#6B5A52] mb-12 max-w-2xl mx-auto">
-            We partner with brands that share our commitment to quality, sustainability, and inclusive design
-          </p>
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-4xl font-bold mb-8">Available Brands</h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {brands.map((brand) => (
-              <div
-                key={brand.name}
-                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="aspect-[4/3] relative bg-[#E8DFD8]">
-                  <Image src={brand.image || "/placeholder.svg"} alt={brand.name} fill className="object-cover" />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-2xl font-serif text-[#5C4A42] mb-2">{brand.name}</h3>
-                  <p className="text-[#6B5A52] mb-4">{brand.description}</p>
-                  <div className="flex gap-2">
-                    <span className="text-xs px-3 py-1 bg-[#F9F6F3] text-[#8C7A72] rounded-full">
-                      {brand.productCount} products
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {brands.length === 0 && !error && (
+          <Alert>
+            <AlertDescription>No brands found in database. Run the Zara scraper to populate data.</AlertDescription>
+          </Alert>
+        )}
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {brands.map((brand) => (
+            <Card key={brand} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-lg">{brand}</CardTitle>
+              </CardHeader>
+            </Card>
+          ))}
         </div>
-      </main>
+      </div>
+      <DebugPanel />
     </>
   )
 }

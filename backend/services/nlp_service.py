@@ -5,19 +5,22 @@ import os
 import json
 
 
+
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 
+# Load environment variables
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 api_key = os.getenv("OPENAI_API_KEY")
-if not api_key:
-    raise ValueError("OPENAI_API_KEY is not set in the environment variables.")
+
 client = OpenAI(api_key=api_key)
-(
-    SYSTEM_PROMPT
+
+
+SYSTEM_PROMPT
 ) = """
 You are a fashion assistant. Convert any aesthetic or vibe description into a structured list of clothing recommendations.
+
 
 Each item must be a real, shoppable clothing type found on common fashion retail sites and considers the person's height. I want exactly five distinct items of clothing.
 
@@ -27,6 +30,7 @@ For each item, include:
 •⁠  ⁠"style": a short phrase describing the overall aesthetic (e.g., "minimalist streetwear", "boho chic")
 
 format the above three in one concise string and output a list of strings (e.g., ["flowy red dress","white oversize tshirt")]  — no commentary or extra text. do not ask followup questions or recommendations. use whatever you are given.
+
 """
 
 
@@ -53,6 +57,6 @@ def run_nlp_search(user_description: str):
     return structured_output
 
 
-# # trying to see if it works
-# prompt = "I want the boho chic aesthetic and the person's height is 6'6\"."
-# print(run_nlp_search(prompt))
+# trying to see if it works
+prompt = "I want the boho chic aesthetic and the person's height is 6'6\"."
+print(run_nlp_search(prompt))

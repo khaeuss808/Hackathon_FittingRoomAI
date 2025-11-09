@@ -1,4 +1,6 @@
-import pandas as pd
+from typing import List, Dict, Optional
+import logging
+from database.db_manager import DatabaseManager
 
 path_name = "/Users/Meron/Desktop/Duke/Hackathon_FittingRoomAI/backend/scrapers/data/processed/zara_2417772_20251108-114030.csv"
 

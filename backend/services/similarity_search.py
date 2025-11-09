@@ -27,11 +27,11 @@ def generate_embedding(text: str):
     return response.data[0].embedding
 
 
-def find_similar_items(query_text: str, top_k: int = 15):
+def find_similar_items(item: str, color: str, size: str = ""):
     """Search Pinecone using item + color (+ optional size)."""
 
     # Build natural text description for better semantic matching
-    # query_text = f"{color} {item} {size}".strip()
+    query_text = f"{color} {item} {size}".strip()
 
     print(f"\n🔎 Searching for: '{query_text}'")
 
@@ -39,15 +39,11 @@ def find_similar_items(query_text: str, top_k: int = 15):
     query_embedding = generate_embedding(query_text)
 
     # Query Pinecone index
-    results = index.query(vector=query_embedding, top_k=top_k, include_metadata=True)
+    results = index.query(vector=query_embedding, top_k=15, include_metadata=True)
 
     print("\nTop similar products:")
-    final_id = []
     for match in results.matches:
         print(match.id, match.score)
-        final_id.append(match.id)
-
-    return final_id
 
 
-# find_similar_items(item="jacket", color="mustard", size="medium")
+find_similar_items(item="jacket", color="mustard", size="medium")
