@@ -40,26 +40,10 @@ export function Header() {
             <Link href="/about" className="text-[#5C4A42] hover:text-[#C4A69D] transition-colors font-serif">
               About
             </Link>
-            <Link href="/shop" className="text-[#5C4A42] hover:text-[#C4A69D] transition-colors font-serif">
-              Shop
-            </Link>
-            <Link href="/brands" className="text-[#5C4A42] hover:text-[#C4A69D] transition-colors font-serif">
-              Brands
-            </Link>
+
           </nav>
 
-          {/* Search (md+) */}
-          <div className="hidden md:flex glass-search-bar items-center gap-2 px-4 py-2 rounded-full w-64">
-            <Search className="w-4 h-4 text-[#C4A69D] shrink-0" />
-            <input
-              type="text"
-              placeholder="search styles"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="flex-1 bg-transparent border-none outline-none text-[#5C4A42] placeholder:text-[#C4A69D]/60 text-sm font-serif"
-            />
-          </div>
+
 
           {/* Mobile menu button */}
           <button className="md:hidden p-2" aria-label="Open menu">
