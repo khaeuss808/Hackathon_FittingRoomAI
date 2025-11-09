@@ -129,7 +129,7 @@ def fetch_zara_products(save_raw=True, save_csv=True, category_name="combined"):
             ts = time.strftime("%Y%m%d-%H%M%S")
             processed_dir = pathlib.Path("data/processed")
             processed_dir.mkdir(parents=True, exist_ok=True)
-            csv_path = processed_dir / f"zara_combined_{ts}.csv"
+            csv_path = processed_dir / f"zara_combined.csv"
             with csv_path.open("w", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(f, fieldnames=list(all_rows[0].keys()))
                 writer.writeheader()

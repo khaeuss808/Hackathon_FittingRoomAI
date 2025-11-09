@@ -39,12 +39,13 @@ export default function ShopPage() {
   const [total, setTotal] = useState(0)
 
   useEffect(() => {
+    const aesthetic = searchParams.get("aesthetic")
     const brands = searchParams.get("brands")
     const sizes = searchParams.get("sizes")
+    const heights = searchParams.get("heights")
     const minPrice = searchParams.get("minPrice")
     const maxPrice = searchParams.get("maxPrice")
-
-    console.log("[v0] Shop page filters:", { brands, sizes, minPrice, maxPrice })
+    console.log("[v0] Shop page filters:", { aesthetic, sizes, heights, minPrice, maxPrice })
 
     fetchProducts(currentPage)
   }, [searchParams, currentPage])
